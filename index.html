@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS 手势识别系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- 摄像头视频层 -->
+    <video id="videoElement" autoplay playsinline></video>
+
+    <!-- 手部骨骼Canvas层 -->
+    <canvas id="handCanvas"></canvas>
+
+    <!-- Three.js 3D地球容器 -->
+    <div id="earthContainer"></div>
+
+    <!-- JARVIS HUD界面 -->
+    <div class="jarvis-hud">
+        <!-- 左上角：系统状态 -->
+        <div class="hud-panel panel-top-left">
+            <div class="panel-header">SYSTEM STATUS</div>
+            <div class="panel-content">
+                <div class="status-item">
+                    <span class="label">摄像头:</span>
+                    <span class="value" id="cameraStatus">离线</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">手势追踪:</span>
+                    <span class="value" id="trackingStatus">未激活</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">FPS:</span>
+                    <span class="value" id="fpsCounter">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">时间:</span>
+                    <span class="value" id="timestamp">--:--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右上角：地球状态 -->
+        <div class="hud-panel panel-top-right">
+            <div class="panel-header">EARTH CONTROL</div>
+            <div class="panel-content">
+                <div class="status-item">
+                    <span class="label">当前形态:</span>
+                    <span class="value" id="earthMode">地表植被</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">缩放级别:</span>
+                    <span class="value" id="zoomLevel">100%</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">旋转速度:</span>
+                    <span class="value" id="rotationSpeed">1.0x</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 左下角：左手手势状态 -->
+        <div class="hud-panel panel-bottom-left">
+            <div class="panel-header">LEFT HAND GESTURE</div>
+            <div class="panel-content">
+                <div class="gesture-display">
+                    <div class="gesture-icon" id="leftHandIcon">
+                        <span class="gesture-number" id="leftHandNumber">-</span>
+                    </div>
+                    <div class="gesture-info">
+                        <div class="status-item">
+                            <span class="label">检测状态:</span>
+                            <span class="value" id="leftHandStatus">未检测</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">当前数字:</span>
+                            <span class="value" id="leftHandGesture">无</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mode-indicators">
+                    <div class="mode-item" data-mode="1">
+                        <span class="mode-number">1</span>
+                        <span class="mode-label">地表植被</span>
+                    </div>
+                    <div class="mode-item" data-mode="2">
+                        <span class="mode-number">2</span>
+                        <span class="mode-label">地质岩浆</span>
+                    </div>
+                    <div class="mode-item" data-mode="3">
+                        <span class="mode-number">3</span>
+                        <span class="mode-label">人口热力</span>
+                    </div>
+                    <div class="mode-item" data-mode="4">
+                        <span class="mode-number">4</span>
+                        <span class="mode-label">全球夜景</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右下角：右手手势状态 -->
+        <div class="hud-panel panel-bottom-right">
+            <div class="panel-header">RIGHT HAND GESTURE</div>
+            <div class="panel-content">
+                <div class="gesture-display">
+                    <div class="gesture-icon" id="rightHandIcon">
+                        <span class="gesture-symbol" id="rightHandSymbol">✋</span>
+                    </div>
+                    <div class="gesture-info">
+                        <div class="status-item">
+                            <span class="label">检测状态:</span>
+                            <span class="value" id="rightHandStatus">未检测</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">手势:</span>
+                            <span class="value" id="rightHandGesture">无</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">双手距离:</span>
+                            <span class="value" id="handOpenness">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中央顶部：标题 -->
+        <div class="hud-title">
+            <h1>J.A.R.V.I.S.</h1>
+            <p class="subtitle">Just A Rather Very Intelligent System</p>
+        </div>
+
+        <!-- 扫描线效果 -->
+        <div class="scan-line"></div>
+    </div>
+
+    <!-- 加载提示 -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>INITIALIZING JARVIS SYSTEM</h2>
+            <p id="loadingText">正在启动系统...</p>
+        </div>
+    </div>
+
+    <!-- 依赖库 -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- 应用模块 -->
+    <script src="HandGestureDetector.js"></script>
+    <script src="EarthRenderer.js"></script>
+    <script src="JarvisUI.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

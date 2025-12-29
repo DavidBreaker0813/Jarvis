@@ -1,0 +1,449 @@
+/* ========== JARVIS 配色方案 ========== */
+:root {
+    --primary-cyan: #00F2FF;
+    /* JARVIS Electric Blue */
+    --primary-blue: #0080ff;
+    --accent-gold: #ffd700;
+    --dark-bg: #000814;
+    --panel-bg: rgba(0, 10, 20, 0.85);
+    /* 更深的背景 */
+    --glow-cyan: 0 0 10px #00F2FF, 0 0 20px rgba(0, 242, 255, 0.4);
+    --glow-blue: 0 0 10px #0080ff, 0 0 20px #0080ff40;
+    --glow-gold: 0 0 10px #ffd700, 0 0 20px #ffd70040;
+}
+
+/* ========== 全局样式 ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Orbitron', 'Courier New', monospace;
+    background: var(--dark-bg);
+    color: var(--primary-cyan);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* ========== 摄像头视频层 (HUD样式 - 右侧垂直居中) ========== */
+#videoElement {
+    position: fixed;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+    width: 320px;
+    height: 240px;
+    object-fit: cover;
+    filter: brightness(0.8) contrast(1.2) hue-rotate(180deg) saturate(1.5);
+    /* 更有科技感的色调 */
+    z-index: 20;
+    /* 上层显示 */
+    border: 2px solid var(--primary-cyan);
+    border-radius: 10px;
+    box-shadow: 0 0 15px var(--primary-cyan);
+    opacity: 0.8;
+}
+
+/* ========== 手部骨骼Canvas层 (跟随视频层) ========== */
+#handCanvas {
+    position: fixed;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+    width: 320px;
+    height: 240px;
+    z-index: 21;
+    /* 在视频之上 */
+    pointer-events: none;
+}
+
+/* ========== Three.js 3D容器 - 全屏显示 ========== */
+#earthContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* ========== JARVIS HUD界面 ========== */
+.jarvis-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* ========== HUD面板通用样式 ========== */
+.hud-panel {
+    position: absolute;
+    background: var(--panel-bg);
+    backdrop-filter: blur(10px);
+    border: 3px solid var(--primary-cyan);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: var(--glow-cyan);
+    animation: panelPulse 3s ease-in-out infinite;
+    min-width: 380px;
+}
+
+@keyframes panelPulse {
+
+    0%,
+    100% {
+        box-shadow: var(--glow-cyan);
+    }
+
+    50% {
+        box-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff60;
+    }
+}
+
+.panel-header {
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-cyan);
+    text-shadow: var(--glow-cyan);
+}
+
+.panel-content {
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+/* ========== 面板位置 ========== */
+.panel-top-left {
+    top: 20px;
+    left: 20px;
+}
+
+.panel-top-right {
+    top: 20px;
+    right: 20px;
+}
+
+.panel-bottom-left {
+    bottom: 20px;
+    left: 20px;
+    min-width: 320px;
+}
+
+.panel-bottom-right {
+    bottom: 20px;
+    right: 20px;
+}
+
+/* ========== 状态项 ========== */
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 4px 0;
+}
+
+.status-item .label {
+    color: var(--primary-blue);
+    opacity: 0.9;
+}
+
+.status-item .value {
+    color: var(--primary-cyan);
+    font-weight: bold;
+    text-shadow: var(--glow-cyan);
+}
+
+/* ========== 手势显示 ========== */
+.gesture-display {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.gesture-icon {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--primary-cyan);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 255, 255, 0.1);
+    box-shadow: var(--glow-cyan);
+    animation: iconRotate 4s linear infinite;
+}
+
+@keyframes iconRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.gesture-number,
+.gesture-symbol {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--primary-cyan);
+    text-shadow: var(--glow-cyan);
+}
+
+.gesture-info {
+    flex: 1;
+}
+
+/* ========== 模式指示器 ========== */
+.mode-indicators {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.mode-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--primary-blue);
+    border-radius: 4px;
+    background: rgba(0, 128, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.mode-item.active {
+    border-color: var(--accent-gold);
+    background: rgba(255, 215, 0, 0.2);
+    box-shadow: var(--glow-gold);
+}
+
+.mode-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-cyan);
+    min-width: 30px;
+    text-align: center;
+}
+
+.mode-item.active .mode-number {
+    color: var(--accent-gold);
+    text-shadow: var(--glow-gold);
+}
+
+.mode-label {
+    font-size: 16px;
+    color: var(--primary-blue);
+    font-weight: 500;
+}
+
+.mode-item.active .mode-label {
+    color: var(--accent-gold);
+}
+
+/* ========== 中央标题 ========== */
+.hud-title {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.hud-title h1 {
+    font-size: 48px;
+    font-weight: bold;
+    letter-spacing: 8px;
+    color: var(--primary-cyan);
+    text-shadow: var(--glow-cyan);
+    animation: titleGlow 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+
+    0%,
+    100% {
+        text-shadow: var(--glow-cyan);
+        transform: scale(1);
+    }
+
+    50% {
+        text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff80;
+        transform: scale(1.02);
+    }
+}
+
+.subtitle {
+    font-size: 16px;
+    letter-spacing: 4px;
+    color: var(--primary-blue);
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+/* ========== 扫描线效果 ========== */
+.scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to bottom,
+            transparent,
+            var(--primary-cyan),
+            transparent);
+    box-shadow: 0 0 10px var(--primary-cyan);
+    animation: scanLineMove 4s linear infinite;
+    opacity: 0.6;
+}
+
+@keyframes scanLineMove {
+    0% {
+        top: 0;
+    }
+
+    100% {
+        top: 100%;
+    }
+}
+
+/* ========== 加载界面 ========== */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 80px;
+    height: 80px;
+    border: 4px solid transparent;
+    border-top-color: var(--primary-cyan);
+    border-right-color: var(--primary-blue);
+    border-radius: 50%;
+    margin: 0 auto 30px;
+    animation: spin 1s linear infinite;
+    box-shadow: var(--glow-cyan);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-content h2 {
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: var(--primary-cyan);
+    text-shadow: var(--glow-cyan);
+    margin-bottom: 15px;
+    animation: textPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes textPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading-content p {
+    font-size: 14px;
+    color: var(--primary-blue);
+    letter-spacing: 2px;
+}
+
+/* ========== 六边形网格背景 ========== */
+/* ========== 六边形网格背景 (移除以显示宇宙背景) ========== */
+/* body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: ...
+    z-index: 0;
+    pointer-events: none;
+} */
+
+/* ========== 响应式调整 ========== */
+@media (max-width: 1024px) {
+    #earthContainer {
+        width: 350px;
+        height: 350px;
+    }
+
+    .hud-panel {
+        min-width: 240px;
+        padding: 12px;
+        font-size: 11px;
+    }
+
+    .hud-title h1 {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 768px) {
+    #earthContainer {
+        width: 250px;
+        height: 250px;
+    }
+
+    .hud-panel {
+        min-width: 200px;
+        padding: 10px;
+    }
+
+    .panel-bottom-left,
+    .panel-bottom-right {
+        min-width: 200px;
+    }
+
+    .gesture-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .gesture-number,
+    .gesture-symbol {
+        font-size: 28px;
+    }
+}
